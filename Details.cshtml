@@ -1,0 +1,229 @@
+﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int>
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_LayoutInspinia.cshtml";
+}
+
+@section styles {
+    <style type="text/css">
+        .ibox {
+            padding: 25px;
+        }
+    </style>
+}
+
+@*@section header
+{
+    <div class="col-lg-10">
+        <h2>Articles</h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="index.html">Home</a>
+            </li>
+            <li>
+                <a href="/Articles/Index">Articles</a>
+            </li>
+            <li class="active">
+                <strong>Details</strong>
+            </li>
+
+        </ol>
+    </div>
+}*@
+
+@*<div data-ng-controller="detailsController as detail">
+    <div>
+        <div class="pull-right">
+            <button class="btn btn-white btn-xs" type="button">Model</button>
+            <button class="btn btn-white btn-xs" type="button">Publishing</button>
+            <button class="btn btn-white btn-xs" type="button">Modern</button>
+        </div><br />
+        <div class="text-center article-title">
+            <span class="text-muted fa fa-clock-o"> {{detail.item.dateAdded | date | limitTo: 12:0}}</span><br />
+            <span class="text-muted fa fa-clock-o">
+                <i data-ng-class="{'hidden': detail.item.dateAdded == detail.item.dateModified}"></i>
+                Edited: {{detail.item.dateModified | date | limitTo: 12:0}}
+            </span><i></i>
+            <h1 class="dTitle">{{detail.item.title}}</h1>
+            <i class="text-muted dAuthor">By: {{detail.item.author}}</i>
+        </div>
+        <div>
+            <p class="dContent" data-ng-bind-Html="detail.item.content"></p>
+        </div>
+    </div>
+</div>*@
+<div class="col-sm-12" style="margin-bottom: 1em; margin-left: 1em">
+    <h2>Details</h2>
+</div>
+
+<div class="wrapper wrapper-content  animated fadeInRight article" data-ng-controller="detailsController as detail">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="ibox" style="background-color: white;">
+                <div class="ibox-content">
+                    <div class="text-center article-title">
+                        <span class="text-muted fa fa-clock-o"> {{detail.item.dateAdded | date | limitTo: 12:0}}</span><br />
+                        <span class="text-muted fa fa-clock-o">
+                            <i data-ng-class="{'hidden': detail.item.dateAdded == detail.item.dateModified}"></i>
+                            Edited: {{detail.item.dateModified | date | limitTo: 12:0}}
+                        </span><i></i>
+                        <h1 class="dTitle">{{detail.item.title}}</h1>
+                        <i class="text-muted dAuthor">By: {{detail.item.author}}</i>
+                    </div>
+                    <div>
+                        <p class="dContent" data-ng-bind-Html="detail.item.content"></p>
+                    </div>
+                    <div class="row">
+                        <hr />
+                        <div class="col-md-6">
+                            <h5>Tags:</h5>
+                            <a href="/articles" class="btn btn-primary btn-xs" id="back" type="button">Back</a>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="small text-right">
+                                <h5>Stats:</h5>
+                                <div> <i class="fa fa-comments-o"> </i> 56 comments </div>
+                                <i class="fa fa-eye"> </i> 144 views
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+            </div>
+        </div>
+
+
+</div>
+
+@section pageInitScripts {
+
+    <script src="~/Scripts/ng/angular-sanitize.min.js"></script>
+    <script src="~/Scripts/sabio/sabio.module.ngSanitize.js"></script>
+}
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/sabio.services.articles.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+        sabio.page.id = @Model.Item;
+
+        (function() {
+            "use strict";
+            angular.module(APPNAME)
+                .factory('articlesService', ArticlesServiceFactory);
+
+            ArticlesServiceFactory.$inject = ['$baseService', '$sabio'];
+
+            function ArticlesServiceFactory($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.articles;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                console.log("articlesService", aSabioServiceObject);
+                return newService;
+            }
+        })();
+
+        (function() {
+            "use strict";
+            angular.module(APPNAME)
+                .controller('detailsController', DetailsController);
+            DetailsController.$inject = ['$scope', '$baseController', 'articlesService', 'breadcrumbService'];
+
+            function DetailsController($scope, $baseController, articlesService, breadcrumbService) {
+
+                var vm = this;
+                vm.item = null;
+                vm.$scope = $scope;
+                vm.articlesService = articlesService;
+                vm.breadcrumbService = breadcrumbService;
+
+                $baseController.merge(vm, $baseController);
+                vm.notify = vm.articlesService.getNotifier($scope);
+
+                _render()
+
+                function _render () {
+                    vm.breadcrumbService.addBreadcrumbs([{ label: "Articles", url: "/articles" }, { label: "Details", url: "" }]);
+                    vm.$systemEventService.broadcast("breadcrumbAdded");
+
+                    vm.articlesService.getById(sabio.page.id, _getSuccess, _getError);
+                }
+
+                function _getSuccess(data) {
+                    vm.notify(function() {
+                        vm.item = data.item;
+                        console.log(vm.item);
+                    })
+                }
+
+                function _getError (jqXHr) {
+                    vm.$alertService.error("unable to fetch record: " + jqXHr.responseText);
+                }
+
+            }
+        })();
+
+        //sabio.page.startUp = function() {
+        //    sabio.services.articles.getById(sabio.page.id, sabio.page.onGetSuccess, sabio.page.onGetError);
+        //    $("#backBtn").click(function() {
+        //        window.location.replace("/articles/index");
+        //    });
+
+        //}
+
+        //sabio.page.writeDetails = function(details) {
+        //    var data = details.item;
+        //    var shortDateALength = jQuery.trim(data.dateAdded).substr(0, 10);
+        //    var shortDateMLength = jQuery.trim(data.dateModified).substr(0, 10);
+
+        //    var template = $($("#detailsTemplate").html());
+        //    template.find(".dTitle").text(data.title);
+        //    template.find(".dAuthor").text(data.author);
+
+        //    template.find(".dContent").append(data.content);
+        //    if (data.dateAdded == data.dateModified) {
+        //        template.find("#createDate").text(shortDateALength);
+        //    } else if (data.dateAdded != data.dateModified) {
+        //        template.find(".editClock, .editTime").removeClass("hidden");
+        //        template.find("#createDate").text(shortDateALength);
+        //        template.find("#editDate").text("Edited: " + shortDateMLength);
+        //    }
+        //    $(".ibox").prepend(template);
+        //}
+
+        //sabio.page.onGetSuccess = function(details) {
+        //    sabio.page.writeDetails(details)
+        //}
+
+        //sabio.page.onGetError = function() {
+        //    console.log("AJAX Get failed");
+        //}
+
+
+    </script>
+    <script type="text/template" id="detailsTemplate">
+        <div>
+            <div>
+                <div class="pull-right">
+                    <button class="btn btn-white btn-xs" type="button">Model</button>
+                    <button class="btn btn-white btn-xs" type="button">Publishing</button>
+                    <button class="btn btn-white btn-xs" type="button">Modern</button>
+                </div><br />
+                <div class="text-center article-title">
+                    <span><i class="text-muted fa fa-clock-o"></i></span><i class="text-muted" id="createDate"></i><br />
+                    <span><i class="text-muted fa fa-clock-o editClock hidden"></i></span><i class="text-muted editTime hidden" id="editDate"></i>
+                    <h1 class="dTitle"></h1>
+                    <i class="text-muted dAuthor"></i>
+
+                </div>
+                <p class="dContent">
+                </p>
+            </div>
+        </div>
+    </script>
+
+
+}
+

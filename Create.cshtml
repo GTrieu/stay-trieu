@@ -1,0 +1,524 @@
+﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int>
+@{
+    Layout = "~/Views/Shared/_LayoutInspinia.cshtml";
+}
+
+@*@section header
+    {
+        <div class="col-lg-10">
+            <h2>Articles</h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="index.html">Home</a>
+                </li>
+                <li>
+                    <a href="/Articles/Index">Articles</a>
+                </li>
+                <li class="active">
+                    <strong>Create</strong>
+                </li>
+                <li class="active">
+                    <strong>Edit</strong>
+                </li>
+
+            </ol>
+        </div>
+    }*@
+
+@section styles{
+    <style type="text/css">
+        .button {
+            margin: 5px 1px 5px 5px;
+        }
+    </style>
+}
+
+<div class="col-lg-12">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            @*<h5>All form elements <small>With custom checkbox and radion elements.</small></h5>*@
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-wrench"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li>
+                        <a href="#">Config option 1</a>
+                    </li>
+                    <li>
+                        <a href="#">Config option 2</a>
+                    </li>
+                </ul>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content" data-ng-controller="createController as Create" ng-cloak>
+            <form id="articleForm" name="Create.articleForm" ng-submit="Create.addOrEditArticle()" class="form-horizontal" novalidate>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Title</label>
+                    <div class="col-sm-10" role="alert">
+                        <input type="text"
+                               placeholder="Title"
+                               id="title"
+                               ng-model="Create.item.title"
+                               class="form-control ng-class:{'error':Create.showArticleErrors && !Create.item.title.$valid}"
+                               ng-minlength="2"
+                               ng-maxlength="70"
+                               name="title"
+                               required>
+                        <div class="help-inline error" role="alert">
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.title.$error.required"><strong>Title is required</strong></span>
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.title.$error.minlength"><strong>Too short! Title must be at least 2 characters</strong></span>
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.title.$error.maxlength"><strong>Too Long! Title must be 70 characters or less</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div></div><br />
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Author</label>
+                    <div class="col-sm-10" role="alert">
+                        <input type="text"
+                               placeholder="Author"
+                               ng-class="{'error':Create.showArticleErrors && !Create.item.author.$valid}"
+                               ng-minlength="2"
+                               ng-maxlength="50"
+                               id="author"
+                               ng-model="Create.item.author"
+                               class="form-control"
+                               name="author"
+                               required>
+                        <div class="help-inline error" role="alert">
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.author.$error.required"><strong>Author is required</strong></span>
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.author.$error.minlength"><strong>Too short! Author must be at least 2 characters</strong></span>
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.author.$error.maxlength"><strong>Too long! Author must be 50 characters or less</strong></span>
+                        </div>
+                    </div>
+                </div>
+                <div></div><br />
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Article Content</label>
+                    <div class="col-sm-10">
+                        <textarea ckeditor="post.ckEditorOptions"
+                                  id="content"
+                                  class="form-control"
+                                  data-ng-model="Create.item.content"
+                                  ng-class="{'error':Create.showArticleErrors && !Create.item.content.$valid}"
+                                  ng-minlength="2"
+                                  ng-maxlength="max"
+                                  rows="6"
+                                  name="content"
+                                  required></textarea>
+                        <div id="space" role="alert" class="help-inline error">
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.content.$error.required"><strong>Content is required</strong></span>
+                            <span class="error" ng-show="Create.showArticleErrors && Create.articleForm.content.$error.minlength"><strong>Too short! Content must be at least 2 characters</strong></span>
+                        </div>
+                        <input type="button" data-ng-class="{'hidden' : !Create.item.id}" data-ng-click="Create.clickDelete()" class="btn btn-white pull-right button" id="delete" value="Delete" />
+                        <a href="/articles/" class="btn btn-white pull-right button" id="cancel" type="button">Cancel</a>
+                        <input type="submit" class="btn btn-primary pull-right button" data-ng-click="Create.createOrSaveClick()" id="submitArticle" value="{{Create.item.id ? 'Save Changes' : 'Submit Article'}}" />
+                    </div>
+                    <div></div>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section pageInitScripts{
+    <script src="~/Scripts/ng/angular-ckeditor.js"></script>
+    <script src="~/Scripts/sabio/sabio.module.ckeditor.js"></script>
+}
+
+@section Scripts {
+    <script src="~/Scripts/sabio.services.articles.js"></script>
+    <script src="~/Content/ckeditor/ckeditor.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+
+        sabio.page.id = @Model.Item;
+
+        (function () {
+            "use strict";
+            angular.module(APPNAME)
+                .factory('articlesService', ArticlesServiceFactory);
+
+            ArticlesServiceFactory.$inject = ['$baseService', '$sabio'];
+
+            function ArticlesServiceFactory($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.articles;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                console.log("articlesService", aSabioServiceObject);
+                return newService;
+            }
+        })();
+
+        (function () {
+            "use strict";
+            angular.module(APPNAME)
+                .controller('createController', CreateController);
+            CreateController.$inject = ['$scope', '$baseController', 'articlesService', 'breadcrumbService', '$sabio'];
+
+            function CreateController($scope, $baseController, articlesService, breadcrumbService, $sabio) {
+
+                var vm = this;
+                vm.showArticleErrors = false;
+                vm.newArticle = null;
+                vm.item = null;
+                vm.articleForm = null;
+                vm.articlesService = articlesService;
+                vm.breadcrumbService = breadcrumbService;
+
+                vm.$scope = $scope;
+                vm.ckEditorOptions = {
+                    language: 'en',
+                    allowedContent: true,
+                    entities: false,
+                };
+
+                vm.createOrSaveClick = _createOrSaveClick;
+                vm.clickDelete = _clickDelete;
+                vm.invokeConfirmSoftDelete = _invokeConfirmSoftDelete;
+                vm.addOrEditArticle = _addOrEditArticle;
+
+                $baseController.merge(vm, $baseController);
+                vm.notify = vm.articlesService.getNotifier($scope);
+
+                _render()
+
+                function _render () {
+                    var breadcrumbLabel = "Create";
+
+                    if (vm.$sabio.id) {
+                        breadcrumbLabel = "Edit";
+                    };
+
+                    vm.breadcrumbService.addBreadcrumbs([{ label: "Articles", url: "/articles" }, { label: breadcrumbLabel, url: "" }]);
+                    vm.$systemEventService.broadcast("breadcrumbAdded");
+                    vm.articlesService.getById(sabio.page.id, _getEditSuccess, _getEditError);
+                }
+
+                function _addOrEditArticle () {
+                    vm.showArticleErrors = true;
+                    if(vm.articleForm.$valid) {
+                        console.log("data is valid! Go save this object: ", vm.item);
+                    } else {
+                        console.log("form submitted with invalid data :(");
+                    }
+                }
+
+                function _confirmSoftDelete() {
+                    var cont = CKEDITOR.instances.content.getData();
+                    vm.item.content = cont;
+                    vm.item.isDeleted = 1;
+                    var data = JSON.stringify(vm.item);
+                    vm.articlesService.update(sabio.page.id, data, _deleteSuccess, _getPutError);
+                }
+
+                function _invokeConfirmSoftDelete() {
+                    sabio.ui.alerts.confirmDelete("Article", sabio.page.id, _confirmSoftDelete);
+                };
+
+                function _clickDelete() {
+                    vm.invokeConfirmSoftDelete();
+                }
+
+                function _createOrSaveClick () {
+                    var cont = CKEDITOR.instances.content.getData();
+                    vm.item.content = cont;
+                    var data = JSON.stringify(vm.item);
+                    if (!vm.item.id) {
+                        vm.articlesService.insert(data, _getPostSuccess, _getPostError);
+                    } else {
+                        vm.articlesService.update(vm.item.id, data, _getPutSuccess, _getPutError);
+                    }
+                }
+
+                function _getEditSuccess(data) {
+                    vm.notify(function() {
+                        vm.item = data.item;
+                    })
+                }
+
+                function _getEditError(jqXhr, error) {
+                    vm.$alertService.error("unable to fetch record: " + jqXhr.responseText);
+                }
+
+                function _getPutSuccess (data) {
+                    vm.notify(function() {
+                        vm.item = data.item;
+                        console.log(vm.item);
+                    })
+                    vm.$alertService.success("Item updated");
+                    setTimeout(function(){window.location.replace("/articles")}, 1000);
+                }
+
+                function _getPutError (jqXhr, error) {
+                    vm.$alertService.error("unable to update record: " + jqXhr.responseText);
+                }
+
+                function _getPostSuccess (data) {
+                    vm.notify(function() {
+                        vm.item = data.item;
+                        console.log(vm.item);
+                    })
+                    vm.$alertService.success("Item inserted");
+                    setTimeout(function(){window.location.replace("/articles")},1000);
+
+                }
+
+                function _getPostError (jqXhr, error) {
+                    vm.$alertService.error("unable to create new record: " + jqXhr.responseText);
+                }
+
+                function _deleteSuccess (data) {
+                    sweetAlert("Deleted!", "The Article has been deleted.", "success");
+                    vm.notify(function() {
+                        vm.item = data.item;
+                        vm.item.content =  CKEDITOR.instances.content.setData(" ");
+                        vm.item = null;
+                    })
+                    vm.$alertService.success("Item deleted");
+                    //setTimeout(function(){window.location.replace("/articles/index")},1000);
+                }
+
+            }
+
+        })();
+
+        //sabio.page.startUp = function () {
+        //    sabio.page.initializeValidiation();
+        //    CKEDITOR.replace("content", {uiColor:'#f3f3f4'});
+        //     sabio.services.articles.getById(sabio.page.id, sabio.page.onGetSuccess, sabio.page.onGetError);
+        //    $("#submitArticle").on("click", sabio.page.handlers.clickSubmitFormButton);
+        //    $("#submitSave").on("click", sabio.page.handlers.updateArticle);
+        //    $("#delete").on("click", sabio.page.handlers.clickDeleteButton);
+        //}
+
+        //sabio.page.initializeValidiation = function () {
+        //    jQuery.validator.setDefaults({
+        //        debug: true,
+        //        highlight: function (element) {
+        //            $(element).closest("#article-Form").addClass("has-error");
+        //        },
+        //        unhighlight: function (element) {
+        //            $(element).closest("#article-Form").removeClass("has-error");
+        //        }
+        //    });
+        //    $("#article-Form").validate({
+        //        ignore: [],
+        //        rules: {
+        //            content: {
+        //                required: function () {
+        //                    CKEDITOR.instances.content.updateElement();
+        //                }
+        //            },
+        //            "title": {
+        //                required: true,
+        //                maxlength: 70
+        //            },
+        //            "author": {
+        //                required: true
+        //            }
+        //            //"content": {
+        //            //    required: true
+        //            //}
+        //        },
+
+        //        messages: {
+        //            "title": {
+        //                required: "Title is required for the form.  Max of 70 characters"
+        //            },
+        //            "author": {
+        //                required: "Author name is required for the form."
+        //            },
+        //            "content": {
+        //                required: "Article content is required for the form"
+        //            }
+        //        },
+        //        errorPlacement: function(error, element)
+        //        {
+        //            if (element.attr("name") == "content")
+        //            {
+        //                //error.appendTo("textarea#content");
+        //                error.insertBefore("#space");
+        //            } else {
+        //                error.insertAfter(element);
+        //            }
+        //        }
+        //    });
+        //};
+
+        //sabio.page.readInputFields = function () {
+        //    var a = CKEDITOR.instances.content.getData();
+
+        //    var title = $(".title").val();
+        //    var author = $(".author").val();
+        //    var content = $("#content").val();
+        //    var inputData = {
+        //        title: title,
+        //        author: author,
+        //        content: a
+        //    }
+
+        //    return inputData
+        //}
+
+        //sabio.page.onGetSuccess = function(inputs) {
+        //    sabio.page.writeArticleInput(inputs);
+        //}
+
+        //sabio.page.onGetError = function(data) {
+        //    console.log(data);
+        //    console.log("AJAX Get failed");
+        //}
+
+        //sabio.page.onPostSuccess = function (data) {
+        //    console.log(sabio.page.id);
+        //}
+
+        //sabio.page.onPutSuccess = function (data) {
+        //    console.log(data);
+        //}
+
+        //sabio.page.onPostError = function () {
+        //    console.log("Ajax Post call failed");
+        //}
+
+        //sabio.page.onPutError = function () {
+        //    console.log("Ajax Put call failed");
+        //}
+
+        //sabio.page.onIsDeleteSuccess = function(data) {
+        //    console.log(data);
+        //    sweetAlert("Deleted!", "The Article has been deleted.", "success");
+        //    $("#articleTitle").val(" ");
+        //    $("#articleAuthor").val(" ");
+        //    CKEDITOR.instances.content.setData(" ");
+        //}
+
+        //sabio.page.onIsDeleteError = function() {
+        //    console.log("soft delete AJAX call failed");
+        //}
+
+        //sabio.page.writeArticleInput = function (inputs) {
+        //    var data = inputs.item;
+        //    var template = $($("#articleTemplate").html());
+        //    if (data.title == null && data.author == null) {
+        //        $("#submitSave").addClass("hidden");
+        //        $("#delete").addClass("hidden");
+        //        $("#cancel").addClass("hidden");
+        //    } else if (data.title != null && data.author != null) {
+        //        $("#submitArticle").addClass("hidden");
+        //        $("#cancel2").addClass("hidden");
+        //    }
+        //    $("#articleTitle").val(data.title);
+        //    $("#articleAuthor").val(data.author);
+        //    CKEDITOR.instances.content.setData(data.content);
+        //    $("#dateAdded").val(data.dateAdded);
+        //    $("#dateModified").val(data.dateModified);
+
+        //    return template;
+        //}
+
+        //sabio.page.invokeConfirmSoftDelete = function() {
+        //    sabio.ui.alerts.confirmDelete("Article", sabio.page.id, sabio.page.confirmSoftDelete);
+        //}
+
+        //sabio.page.confirmSoftDelete = function (data) {
+        //    if ($("#article-Form").valid()) {
+        //        var data = $("#article-Form").serialize() + "&id="+sabio.page.id + "&isdeleted=" + 1;
+        //        sabio.services.articles.update(sabio.page.id, data, sabio.page.onIsDeleteSuccess, sabio.page.onIsDeleteError);
+        //    }
+        //}
+
+        //sabio.page.handlers.updateArticle = function (e, data) {
+        //    if ($("#article-Form").valid()) {
+        //        e.preventDefault();
+        //        var data = $("#article-Form").serialize() + "&id=" + sabio.page.id;
+        //        sabio.services.articles.update(sabio.page.id, data, sabio.page.onPutSuccess, sabio.page.onPutError);
+        //        window.location.replace("/articles/index")
+        //    }
+
+        //}
+
+        //sabio.page.handlers.clickSubmitFormButton = function () {
+        //    if ($("#article-Form").valid()) {
+
+        //        var data = $("#article-Form").serialize();
+        //        sabio.services.articles.insert(data, sabio.page.onPostSuccess, sabio.page.onPostError);
+        //        window.location.replace("/articles/index")
+        //    } else {
+        //        console.log("fail");
+        //    }
+        //}
+
+        //sabio.page.handlers.clickDeleteButton = function () {
+        //    event.preventDefault();
+        //    sabio.page.invokeConfirmSoftDelete();
+        //    $("#submitSave").addClass("hidden");
+        //    $("#delete").addClass("hidden");
+        //    $("#cancel").html("Back");
+        //}
+
+
+
+
+    </script>
+    <script type="text/template" id="articleTemplate">
+        <form id="articleForm" class="form-horizontal">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Title</label>
+
+                <div class="col-sm-10">
+                    <input type="text" id="articleTitle" class="form-control title" name="title">
+                </div>
+            </div>
+            <div class="hr-line-dashed">
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Author</label>
+                <div class="col-sm-10">
+                    <input type="text" id="articleAuthor" class="form-control author" name="author">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label hidden">dateAdded</label>
+                <div class="col-sm-10">
+                    <input type="text" id="articleAuthor" class="form-control author" name="author">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label hidden">dateModified</label>
+                <div class="col-sm-10">
+                    <input type="text" id="articleAuthor" class="form-control author" name="author">
+                </div>
+            </div>
+
+            <div class="hr-line-dashed"></div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Article Content</label>
+
+                <div class="col-sm-10">
+                    <textarea id="content" class="form-control" rows="6" name="content"></textarea>
+                </div>
+
+
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button class="btn btn-white" type="submit">Cancel</button>
+                    <button class="btn btn-primary" id="submitSave" type="submit">Save changes</button>
+                </div>
+                <div>
+                    <button type="button" id="submitArticle" class="btn btn-primary pull-right">Submit Article</button>
+                </div>
+                <div class="hr-line-dashed"></div>
+
+            </div>
+        </form>
+    </script>
+}

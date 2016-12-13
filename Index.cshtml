@@ -1,0 +1,226 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutInspinia.cshtml";
+}
+@section styles{
+    <style type="text/css">
+        .button {
+            margin-right: 2px;
+            font-size: 11px;
+            /*padding: 4px 10px 4px 10px;*/
+        }
+
+        #createNew {
+            height: 40px;
+            margin: 0px 0px 20px 0px;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        .createDate, .modDate {
+            font-size: 10px;
+        }
+    </style>
+}
+
+<div data-ng-controller="articlesController as art">
+    <div class="grid col-sm-12">
+        <div class="row col-sm-10">
+            <button class="btn btn-primary" data-ng-click="art.createArticle()" id="createNew">Create New Article</button>
+            <label for="search" class="pull-right" style="margin-top:17px; margin-left:20px; font-size:14px;">
+                Items per page: <input ng-init="pageSize='6'" style="width:38px" class="input-sm" type="text" value="12" min="1" max="100" ng-model="pageSize">
+            </label>
+        </div>
+        <dir-pagination-controls class="pull-right" style="margin-right:15px;"></dir-pagination-controls>
+        <div class="grid-item">
+            <div class="ibox" dir-paginate="article in art.items | orderBy: '-dateAdded':true | itemsPerPage: pageSize ">
+                <div class="ibox-content">
+                    <h3 class="font-bold">
+                        {{article.title}}
+                    </h3>
+                    <p class="createDate">Created: {{article.dateAdded | date | limitTo: 12:0}}</p>
+                    <p class="modDate" data-ng-class="{'hidden':article.dateAdded == article.dateModified }">Edited: {{article.dateModified | date | limitTo: 12:0}}</p>
+                    <h5 class="author">By: {{article.author}}</h5>
+                    <p class="content" data-ng-bind-Html="article.content | limitTo: 400:0"></p>
+                    <div>
+                        <button class="btn btn-primary btn-xs button" data-ng-click="art.editArticle(article)" id="editButton">Edit</button>
+                        <button class="btn btn-primary btn-xs button" data-ng-click="art.readMore(article)" id="readMore">Read More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section pageInitScripts {
+    <script src="~/Scripts/ng/angular-sanitize.min.js"></script>
+    <script src="~/Scripts/sabio/sabio.module.ngSanitize.js"></script>
+    <script src="~/Scripts/ng/dirPagination.js"></script>
+    <script src="~/Scripts/sabio/sabio.module.dirPagination.js"></script>
+}
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/sabio.services.articles.js"></script>
+    @*<script src="~/Scripts/app/services/breadcrumbService.js"></script>*@
+    <script type="text/javascript">
+
+        sabio.page.id = null;
+
+        (function () {
+            "use strict";
+            angular.module(APPNAME)
+             .factory('$articlesService', ArticlesServiceFactory);
+
+            ArticlesServiceFactory.$inject = ['$baseService', '$sabio'];
+
+            function ArticlesServiceFactory($baseService, $sabio) {
+                var aSabioServiceObject = sabio.services.articles;
+                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
+                console.log("articlesService", aSabioServiceObject);
+                return newService;
+            }
+        })();
+
+
+        (function () {
+            "use strict";
+            angular.module(APPNAME)
+                .filter('removeHTMLTags', function () {
+                    return function (text) {
+                        return text ? String(text).replace(/<[^>]+>/gm, '') : '';
+                    };
+                })
+                .controller('articlesController', ArticlesController);
+
+            ArticlesController.$inject = ['$scope', '$baseController', '$articlesService', 'breadcrumbService'];
+
+            function ArticlesController($scope, $baseController, $articlesService, breadcrumbService) {
+
+                var vm = this;
+                vm.items = null;
+                vm.readFull = null;
+                vm.edit = null;
+                //vm.$sabio = $sabio;
+                vm.$articlesService = $articlesService;
+                vm.breadcrumbService = breadcrumbService;
+
+                vm.readMore = _readMore;
+                vm.createArticle = _createArticle;
+                vm.editArticle = _editArticle;
+
+                $baseController.merge(vm, $baseController);
+                vm.notify = vm.$articlesService.getNotifier($scope);
+
+                _render();
+
+                function _render() {
+                    vm.breadcrumbService.addBreadcrumbs([{ label: "Articles", url: "" }]);
+                    vm.$systemEventService.broadcast("breadcrumbAdded");
+                    vm.$articlesService.getAll(_receiveItems, _getAllError);
+                }
+
+                function _receiveItems(data) {
+                    vm.notify(function () {
+                        vm.items = data.items;
+                        console.log(vm.items);
+                    })
+                }
+
+                function _getAllError(jqXhr, error) {
+                    console.error(error);
+                }
+
+                function _readMore(dataId) {
+                    console.log(dataId);
+                    window.location.replace("/articles/" + dataId.id + "/details");
+                }
+
+                function _createArticle() {
+                    window.location.replace("/articles/create")
+                }
+
+                function _editArticle(dataId) {
+                    console.log(dataId);
+                    vm.edit = dataId;
+                    window.location.replace("/articles/" + dataId.id + "/edit");
+                }
+
+            }
+        })();
+
+        //sabio.page.startUp = function () {
+        //    sabio.services.articles.getAll(sabio.page.getAllSuccess, sabio.page.getAllError);
+        //    $("#createNew").click(function () {
+        //        window.location.replace("/articles/create");
+        //    });
+        //    $("#readMore").click(function () {
+        //        window.location.replace("/details")
+        //    })
+        //}
+
+        //sabio.page.getAllSuccess = function (data) {
+        //    console.log(data.items);
+        //    for (var i = 0; i < data.items.length; i++) {
+        //        var post = data.items[i];
+        //            sabio.page.writeMiniArticle(post);
+        //        }
+
+        //}
+
+        //sabio.page.getAllError = function () {
+        //    console.log("ajax GetAll call failed");
+        //}
+
+        //sabio.page.writeMiniArticle = function (data) {
+        //    var shortDateALength = jQuery.trim(data.dateAdded).substr(0, 10);
+        //    var shortDateMLength = jQuery.trim(data.dateModified).substr(0, 10);
+
+        //    var template = $($("#divTemplate").html());
+        //    template.find(".title").text(data.title);
+        //    template.find(".author").text("By: " + data.author);
+        //    var cont = data.content;
+
+        //    if (cont.length > 250) {
+        //        var short = jQuery.trim(cont).substring(0, 150) + "...";
+        //        template.find(".content").append(short);
+        //    } else {
+        //        template.find(".content").append(cont);
+        //    }
+        //    if (data.dateAdded == data.dateModified) {
+        //        template.find(".createDate").text("Date posted: " + shortDateALength);
+        //    } else if (data.dateAdded != data.dateModified) {
+        //        template.find(".createDate").text("Date posted: " + shortDateALength);
+        //        template.find(".modDate").text("Edited on: " + shortDateMLength);
+        //    }
+        //    $(".image-boxes").prepend(template);
+
+        //    $("#editButton").click(function () {
+        //        window.location.replace(data.id + "/edit");
+        //    });
+        //    $("#readMore").click(function () {
+        //        window.location.replace(data.id + "/details");
+        //    });
+        //}
+
+
+    </script>
+    <script type="text/template" id="divTemplate">
+        <div class="col-lg-2 container">
+            @*<div class="col-lg-3 isotope-item web-design">*@
+            <div class="image-box">
+                <div class="image-box-body">
+                    <h3 class="title"></h3>
+                    <p class="createDate"></p>
+                    <p class="modDate"></p>
+                    <h5 class="author"></h5>
+                    <div class="content"></div>
+                </div>
+            </div>
+            <div><button class="btn-primary pull-right button" id="editButton">Edit</button></div>
+            <div><button class="btn-primary pull-right button" id="readMore">Read More</button></div>
+        </div>
+    </script>
+}
+
