@@ -1,4 +1,4 @@
-﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int>
+﻿@model Optio.Web.Models.ViewModels.ItemViewModel<int>
 @{
     Layout = "~/Views/Shared/_LayoutInspinia.cshtml";
 }
@@ -132,28 +132,28 @@
 
 @section pageInitScripts{
     <script src="~/Scripts/ng/angular-ckeditor.js"></script>
-    <script src="~/Scripts/sabio/sabio.module.ckeditor.js"></script>
+    <script src="~/Scripts/optio/optio.module.ckeditor.js"></script>
 }
 
 @section Scripts {
-    <script src="~/Scripts/sabio.services.articles.js"></script>
+    <script src="~/Scripts/optio.services.articles.js"></script>
     <script src="~/Content/ckeditor/ckeditor.js"></script>
     <script src="~/Scripts/jquery.validate.min.js"></script>
     <script type="text/javascript">
 
-        sabio.page.id = @Model.Item;
+        optio.page.id = @Model.Item;
 
         (function () {
             "use strict";
             angular.module(APPNAME)
                 .factory('articlesService', ArticlesServiceFactory);
 
-            ArticlesServiceFactory.$inject = ['$baseService', '$sabio'];
+            ArticlesServiceFactory.$inject = ['$baseService', '$optio'];
 
-            function ArticlesServiceFactory($baseService, $sabio) {
-                var aSabioServiceObject = sabio.services.articles;
-                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
-                console.log("articlesService", aSabioServiceObject);
+            function ArticlesServiceFactory($baseService, $optio) {
+                var aOptioServiceObject = optio.services.articles;
+                var newService = $baseService.merge(true, {}, aOptioServiceObject, $baseService);
+                console.log("articlesService", aOptioServiceObject);
                 return newService;
             }
         })();
@@ -162,9 +162,9 @@
             "use strict";
             angular.module(APPNAME)
                 .controller('createController', CreateController);
-            CreateController.$inject = ['$scope', '$baseController', 'articlesService', 'breadcrumbService', '$sabio'];
+            CreateController.$inject = ['$scope', '$baseController', 'articlesService', 'breadcrumbService', '$optio'];
 
-            function CreateController($scope, $baseController, articlesService, breadcrumbService, $sabio) {
+            function CreateController($scope, $baseController, articlesService, breadcrumbService, $optio) {
 
                 var vm = this;
                 vm.showArticleErrors = false;
@@ -194,13 +194,13 @@
                 function _render () {
                     var breadcrumbLabel = "Create";
 
-                    if (vm.$sabio.id) {
+                    if (vm.$optio.id) {
                         breadcrumbLabel = "Edit";
                     };
 
                     vm.breadcrumbService.addBreadcrumbs([{ label: "Articles", url: "/articles" }, { label: breadcrumbLabel, url: "" }]);
                     vm.$systemEventService.broadcast("breadcrumbAdded");
-                    vm.articlesService.getById(sabio.page.id, _getEditSuccess, _getEditError);
+                    vm.articlesService.getById(optio.page.id, _getEditSuccess, _getEditError);
                 }
 
                 function _addOrEditArticle () {
@@ -217,11 +217,11 @@
                     vm.item.content = cont;
                     vm.item.isDeleted = 1;
                     var data = JSON.stringify(vm.item);
-                    vm.articlesService.update(sabio.page.id, data, _deleteSuccess, _getPutError);
+                    vm.articlesService.update(optio.page.id, data, _deleteSuccess, _getPutError);
                 }
 
                 function _invokeConfirmSoftDelete() {
-                    sabio.ui.alerts.confirmDelete("Article", sabio.page.id, _confirmSoftDelete);
+                    optio.ui.alerts.confirmDelete("Article", optio.page.id, _confirmSoftDelete);
                 };
 
                 function _clickDelete() {
@@ -291,16 +291,16 @@
 
         })();
 
-        //sabio.page.startUp = function () {
-        //    sabio.page.initializeValidiation();
+        //optio.page.startUp = function () {
+        //    optio.page.initializeValidiation();
         //    CKEDITOR.replace("content", {uiColor:'#f3f3f4'});
-        //     sabio.services.articles.getById(sabio.page.id, sabio.page.onGetSuccess, sabio.page.onGetError);
-        //    $("#submitArticle").on("click", sabio.page.handlers.clickSubmitFormButton);
-        //    $("#submitSave").on("click", sabio.page.handlers.updateArticle);
-        //    $("#delete").on("click", sabio.page.handlers.clickDeleteButton);
+        //     optio.services.articles.getById(optio.page.id, optio.page.onGetSuccess, optio.page.onGetError);
+        //    $("#submitArticle").on("click", optio.page.handlers.clickSubmitFormButton);
+        //    $("#submitSave").on("click", optio.page.handlers.updateArticle);
+        //    $("#delete").on("click", optio.page.handlers.clickDeleteButton);
         //}
 
-        //sabio.page.initializeValidiation = function () {
+        //optio.page.initializeValidiation = function () {
         //    jQuery.validator.setDefaults({
         //        debug: true,
         //        highlight: function (element) {
@@ -354,7 +354,7 @@
         //    });
         //};
 
-        //sabio.page.readInputFields = function () {
+        //optio.page.readInputFields = function () {
         //    var a = CKEDITOR.instances.content.getData();
 
         //    var title = $(".title").val();
@@ -369,32 +369,32 @@
         //    return inputData
         //}
 
-        //sabio.page.onGetSuccess = function(inputs) {
-        //    sabio.page.writeArticleInput(inputs);
+        //optio.page.onGetSuccess = function(inputs) {
+        //    optio.page.writeArticleInput(inputs);
         //}
 
-        //sabio.page.onGetError = function(data) {
+        //optio.page.onGetError = function(data) {
         //    console.log(data);
         //    console.log("AJAX Get failed");
         //}
 
-        //sabio.page.onPostSuccess = function (data) {
-        //    console.log(sabio.page.id);
+        //optio.page.onPostSuccess = function (data) {
+        //    console.log(optio.page.id);
         //}
 
-        //sabio.page.onPutSuccess = function (data) {
+        //optio.page.onPutSuccess = function (data) {
         //    console.log(data);
         //}
 
-        //sabio.page.onPostError = function () {
+        //optio.page.onPostError = function () {
         //    console.log("Ajax Post call failed");
         //}
 
-        //sabio.page.onPutError = function () {
+        //optio.page.onPutError = function () {
         //    console.log("Ajax Put call failed");
         //}
 
-        //sabio.page.onIsDeleteSuccess = function(data) {
+        //optio.page.onIsDeleteSuccess = function(data) {
         //    console.log(data);
         //    sweetAlert("Deleted!", "The Article has been deleted.", "success");
         //    $("#articleTitle").val(" ");
@@ -402,11 +402,11 @@
         //    CKEDITOR.instances.content.setData(" ");
         //}
 
-        //sabio.page.onIsDeleteError = function() {
+        //optio.page.onIsDeleteError = function() {
         //    console.log("soft delete AJAX call failed");
         //}
 
-        //sabio.page.writeArticleInput = function (inputs) {
+        //optio.page.writeArticleInput = function (inputs) {
         //    var data = inputs.item;
         //    var template = $($("#articleTemplate").html());
         //    if (data.title == null && data.author == null) {
@@ -426,22 +426,22 @@
         //    return template;
         //}
 
-        //sabio.page.invokeConfirmSoftDelete = function() {
-        //    sabio.ui.alerts.confirmDelete("Article", sabio.page.id, sabio.page.confirmSoftDelete);
+        //optio.page.invokeConfirmSoftDelete = function() {
+        //    optio.ui.alerts.confirmDelete("Article", optio.page.id, optio.page.confirmSoftDelete);
         //}
 
-        //sabio.page.confirmSoftDelete = function (data) {
+        //optio.page.confirmSoftDelete = function (data) {
         //    if ($("#article-Form").valid()) {
-        //        var data = $("#article-Form").serialize() + "&id="+sabio.page.id + "&isdeleted=" + 1;
-        //        sabio.services.articles.update(sabio.page.id, data, sabio.page.onIsDeleteSuccess, sabio.page.onIsDeleteError);
+        //        var data = $("#article-Form").serialize() + "&id="+optio.page.id + "&isdeleted=" + 1;
+        //        sabio.services.articles.update(optio.page.id, data, optio.page.onIsDeleteSuccess, optio.page.onIsDeleteError);
         //    }
         //}
 
-        //sabio.page.handlers.updateArticle = function (e, data) {
+        //optio.page.handlers.updateArticle = function (e, data) {
         //    if ($("#article-Form").valid()) {
         //        e.preventDefault();
-        //        var data = $("#article-Form").serialize() + "&id=" + sabio.page.id;
-        //        sabio.services.articles.update(sabio.page.id, data, sabio.page.onPutSuccess, sabio.page.onPutError);
+        //        var data = $("#article-Form").serialize() + "&id=" + optio.page.id;
+        //        sabio.services.articles.update(optio.page.id, data, optio.page.onPutSuccess, optio.page.onPutError);
         //        window.location.replace("/articles/index")
         //    }
 
@@ -451,16 +451,16 @@
         //    if ($("#article-Form").valid()) {
 
         //        var data = $("#article-Form").serialize();
-        //        sabio.services.articles.insert(data, sabio.page.onPostSuccess, sabio.page.onPostError);
+        //        optio.services.articles.insert(data, optio.page.onPostSuccess, optio.page.onPostError);
         //        window.location.replace("/articles/index")
         //    } else {
         //        console.log("fail");
         //    }
         //}
 
-        //sabio.page.handlers.clickDeleteButton = function () {
+        //optio.page.handlers.clickDeleteButton = function () {
         //    event.preventDefault();
-        //    sabio.page.invokeConfirmSoftDelete();
+        //    optio.page.invokeConfirmSoftDelete();
         //    $("#submitSave").addClass("hidden");
         //    $("#delete").addClass("hidden");
         //    $("#cancel").html("Back");
