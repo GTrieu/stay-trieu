@@ -11,7 +11,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
 
-namespace Sabio.Web.Controllers.Api 
+namespace Optio.Web.Controllers.Api 
 {
     [RoutePrefix("api/Articles")]
     public class ArticlesApiController : BaseApiController
