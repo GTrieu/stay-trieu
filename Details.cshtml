@@ -1,4 +1,4 @@
-﻿@model Sabio.Web.Models.ViewModels.ItemViewModel<int>
+﻿@model Optio.Web.Models.ViewModels.ItemViewModel<int>
 
 @{
     ViewBag.Title = "Details";
@@ -99,28 +99,28 @@
 @section pageInitScripts {
 
     <script src="~/Scripts/ng/angular-sanitize.min.js"></script>
-    <script src="~/Scripts/sabio/sabio.module.ngSanitize.js"></script>
+    <script src="~/Scripts/optio.module.ngSanitize.js"></script>
 }
 
 @section scripts {
     <script src="~/Scripts/jquery.validate.min.js"></script>
-    <script src="~/Scripts/sabio.services.articles.js"></script>
+    <script src="~/Scripts/optio.services.articles.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script type="text/javascript">
 
-        sabio.page.id = @Model.Item;
+        optio.page.id = @Model.Item;
 
         (function() {
             "use strict";
             angular.module(APPNAME)
                 .factory('articlesService', ArticlesServiceFactory);
 
-            ArticlesServiceFactory.$inject = ['$baseService', '$sabio'];
+            ArticlesServiceFactory.$inject = ['$baseService', '$optio'];
 
-            function ArticlesServiceFactory($baseService, $sabio) {
-                var aSabioServiceObject = sabio.services.articles;
-                var newService = $baseService.merge(true, {}, aSabioServiceObject, $baseService);
-                console.log("articlesService", aSabioServiceObject);
+            function ArticlesServiceFactory($baseService, $optio) {
+                var aOptioServiceObject = optio.services.articles;
+                var newService = $baseService.merge(true, {}, aOptioServiceObject, $baseService);
+                console.log("articlesService", aOptioServiceObject);
                 return newService;
             }
         })();
@@ -165,15 +165,15 @@
             }
         })();
 
-        //sabio.page.startUp = function() {
-        //    sabio.services.articles.getById(sabio.page.id, sabio.page.onGetSuccess, sabio.page.onGetError);
+        //optio.page.startUp = function() {
+        //    optio.services.articles.getById(optio.page.id, optio.page.onGetSuccess, optio.page.onGetError);
         //    $("#backBtn").click(function() {
         //        window.location.replace("/articles/index");
         //    });
 
         //}
 
-        //sabio.page.writeDetails = function(details) {
+        //optio.page.writeDetails = function(details) {
         //    var data = details.item;
         //    var shortDateALength = jQuery.trim(data.dateAdded).substr(0, 10);
         //    var shortDateMLength = jQuery.trim(data.dateModified).substr(0, 10);
@@ -193,11 +193,11 @@
         //    $(".ibox").prepend(template);
         //}
 
-        //sabio.page.onGetSuccess = function(details) {
-        //    sabio.page.writeDetails(details)
+        //optio.page.onGetSuccess = function(details) {
+        //    optio.page.writeDetails(details)
         //}
 
-        //sabio.page.onGetError = function() {
+        //optio.page.onGetError = function() {
         //    console.log("AJAX Get failed");
         //}
 
