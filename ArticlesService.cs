@@ -4,11 +4,11 @@ using System.Linq;
 using System.Web;
 using System.Data;
 using System.Data.SqlClient;
-using Sabio.Data;
-using Sabio.Web.Models.Requests;
-using Sabio.Web.Domain;
+using Optio.Data;
+using Optio.Web.Models.Requests;
+using Optio.Web.Domain;
 
-namespace Sabio.Web.Services
+namespace Optio.Web.Services
 {
     public class ArticlesService : BaseService, IArticlesService
     {
