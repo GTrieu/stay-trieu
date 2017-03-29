@@ -148,7 +148,7 @@
                     vm.breadcrumbService.addBreadcrumbs([{ label: "Articles", url: "/articles" }, { label: "Details", url: "" }]);
                     vm.$systemEventService.broadcast("breadcrumbAdded");
 
-                    vm.articlesService.getById(sabio.page.id, _getSuccess, _getError);
+                    vm.articlesService.getById(optio.page.id, _getSuccess, _getError);
                 }
 
                 function _getSuccess(data) {
